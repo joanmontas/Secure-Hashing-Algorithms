@@ -91,10 +91,10 @@ void process_chunk(uint8_t chunk[BLOCK_BUFFER_SIZE], uint32_t *h0, uint32_t *h1,
 	*h4 += e;
 }
 
-int main()
+int sha1(char *input_file, uint32_t *h0, uint32_t *h1, uint32_t *h2,
+	 uint32_t *h3, uint32_t *h4)
 {
 	// input
-	char *input_file = "./test.txt";
 	FILE *file0 = fopen(input_file, "rb");
 	if (file0 == NULL) {
 		perror("Error: Could not open input_file");
@@ -118,11 +118,11 @@ int main()
 	uint8_t block_buffer[BLOCK_BUFFER_SIZE];
 	size_t bytes_read = 0u;
 
-	uint32_t h0 = 0x67452301;
-	uint32_t h1 = 0xEFCDAB89;
-	uint32_t h2 = 0x98BADCFE;
-	uint32_t h3 = 0x10325476;
-	uint32_t h4 = 0xC3D2E1F0;
+	*h0 = 0x67452301;
+	*h1 = 0xEFCDAB89;
+	*h2 = 0x98BADCFE;
+	*h3 = 0x10325476;
+	*h4 = 0xC3D2E1F0;
 
 	// read input 512-bits at a time
 	while (1) {
@@ -158,7 +158,7 @@ int main()
 				 0xFF);
 
 			// perform final processing
-			process_chunk(block_buffer, &h0, &h1, &h2, &h3, &h4);
+			process_chunk(block_buffer, h0, h1, h2, h3, h4);
 
 			break;
 		}
@@ -171,12 +171,25 @@ int main()
 		number_of_512bit_blocks = number_of_512bit_blocks - 1u;
 
 		if (number_of_512bit_blocks != 0) {
-			process_chunk(block_buffer, &h0, &h1, &h2, &h3, &h4);
+			process_chunk(block_buffer, h0, h1, h2, h3, h4);
 		}
 	}
 
 	// Produce the final hash value (big-endian) as a 160-bit number:
-	printf("%08x%08x%08x%08x%08x", h0, h1, h2, h3, h4);
 	fclose(file0);
+	return 0;
+}
+
+int main()
+{
+	uint32_t h0 = 0u;
+	uint32_t h1 = 0u;
+	uint32_t h2 = 0u;
+	uint32_t h3 = 0u;
+	uint32_t h4 = 0u;
+
+	sha1("./test.txt", &h0, &h1, &h2, &h3, &h4);
+
+	printf("%08x%08x%08x%08x%08x", h0, h1, h2, h3, h4);
 	return 0;
 }
