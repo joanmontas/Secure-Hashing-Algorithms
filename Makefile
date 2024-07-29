@@ -1,20 +1,23 @@
-# Copyright Joan Montas
-# All rights reserved.
-# License under GNU General Public License v3.0
-
 CC = gcc
 CFLAGS = --std=gnu11 -Wextra -Wpedantic -g -Wformat -Wshadow -Wconversion -Wall -fsanitize=address
-EXECUTABLE_NAME = sha_one
+LDFLAGS = -lcunit
+EXECUTABLE_NAME = sha_hash
+BUILD_DIR = build
+INCLUDE = include
 
-TEST_FRAMEWORK = -lcunit
+all: $(BUILD_DIR) $(EXECUTABLE_NAME)
 
-all: $(EXECUTABLE_NAME)
+$(BUILD_DIR):
+	mkdir -p $@
 
-$(EXECUTABLE_NAME): main.o
-	$(CC) $(CFLAGS) -o $(EXECUTABLE_NAME) main.o
+$(EXECUTABLE_NAME): $(BUILD_DIR)/main.o $(BUILD_DIR)/sha.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o ./bin/$(EXECUTABLE_NAME) $(BUILD_DIR)/main.o $(BUILD_DIR)/sha.o
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+$(BUILD_DIR)/main.o: src/main.c
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+
+$(BUILD_DIR)/sha.o: src/sha.c
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 clean:
-	rm ./*.o ./$(EXECUTABLE_NAME)
+	rm -rf $(BUILD_DIR) ./bin/$(EXECUTABLE_NAME)
