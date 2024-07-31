@@ -5,17 +5,6 @@
 #include "../include/sha.h"
 
 /**
- * @brief Performs a left rotation of an uint32_t
- * @param val Value to be rotated.
- * @param rotate_by Amount of rotation.
- * @return returns left rotated value
- */
-inline uint32_t left_rotate(uint32_t val, size_t rotate_by)
-{
-	return (val << rotate_by) | (val >> (32 - rotate_by));
-}
-
-/**
  * @brief Zero-fill non-used bytes in the block
  * @param block 512-bits block/chunk from given file
  * @param bytes_read Number of bytes currently present in the block
@@ -24,7 +13,7 @@ inline uint32_t left_rotate(uint32_t val, size_t rotate_by)
 int pre_processing(uint8_t block[BLOCK_BUFFER_SIZE], size_t bytes_read)
 {
 	if (bytes_read > 0 && bytes_read > BLOCK_BUFFER_SIZE) {
-		return -1;
+		return 1;
 	}
 
 	// zero out remaining block
@@ -35,6 +24,16 @@ int pre_processing(uint8_t block[BLOCK_BUFFER_SIZE], size_t bytes_read)
 	return 0;
 }
 
+/**
+ * @brief Process 512 bits of Sha0
+ * @param chunk 512-bits block/chunk from given file
+ * @param h0 1th 32 bits of 120-bit hash
+ * @param h1 2th 32 bits of 120-bit hash
+ * @param h2 3th 32 bits of 120-bit hash
+ * @param h3 4th 32 bits of 120-bit hash
+ * @param h4 5th 32 bits of 120-bit hash
+ * @return returns left rotated value
+ */
 void process_chunk_sha0(uint8_t chunk[BLOCK_BUFFER_SIZE], uint32_t *h0,
 			uint32_t *h1, uint32_t *h2, uint32_t *h3, uint32_t *h4)
 {
@@ -98,6 +97,16 @@ void process_chunk_sha0(uint8_t chunk[BLOCK_BUFFER_SIZE], uint32_t *h0,
 	*h4 += e;
 }
 
+/**
+ * @brief Perform Sha-0 Algorithmn given file
+ * @param input_file Path to file
+ * @param h0 1th 32 bits of 120-bit hash
+ * @param h1 2th 32 bits of 120-bit hash
+ * @param h2 3th 32 bits of 120-bit hash
+ * @param h3 4th 32 bits of 120-bit hash
+ * @param h4 5th 32 bits of 120-bit hash
+ * @return 0 on success else 1
+ */
 int sha0(char *input_file, uint32_t *h0, uint32_t *h1, uint32_t *h2,
 	 uint32_t *h3, uint32_t *h4)
 {
@@ -125,11 +134,11 @@ int sha0(char *input_file, uint32_t *h0, uint32_t *h1, uint32_t *h2,
 	uint8_t block_buffer[BLOCK_BUFFER_SIZE];
 	size_t bytes_read = 0u;
 
-	*h0 = 0x67452301;
-	*h1 = 0xEFCDAB89;
-	*h2 = 0x98BADCFE;
-	*h3 = 0x10325476;
-	*h4 = 0xC3D2E1F0;
+	*h0 = H0;
+	*h1 = H1;
+	*h2 = H2;
+	*h3 = H3;
+	*h4 = H4;
 
 	// read input 512-bits at a time
 	while (1) {
@@ -187,6 +196,16 @@ int sha0(char *input_file, uint32_t *h0, uint32_t *h1, uint32_t *h2,
 	return 0;
 }
 
+/**
+ * @brief Process 512 bits of Sha0
+ * @param chunk 512-bits block/chunk from given file
+ * @param h0 1th 32 bits of 120-bit hash
+ * @param h1 2th 32 bits of 120-bit hash
+ * @param h2 3th 32 bits of 120-bit hash
+ * @param h3 4th 32 bits of 120-bit hash
+ * @param h4 5th 32 bits of 120-bit hash
+ * @return returns left rotated value
+ */
 void process_chunk_sha1(uint8_t chunk[BLOCK_BUFFER_SIZE], uint32_t *h0,
 			uint32_t *h1, uint32_t *h2, uint32_t *h3, uint32_t *h4)
 {
@@ -252,6 +271,16 @@ void process_chunk_sha1(uint8_t chunk[BLOCK_BUFFER_SIZE], uint32_t *h0,
 	*h4 += e;
 }
 
+/**
+ * @brief Perform Sha-1 Algorithmn given file
+ * @param input_file Path to file
+ * @param h0 1th 32 bits of 120-bit hash
+ * @param h1 2th 32 bits of 120-bit hash
+ * @param h2 3th 32 bits of 120-bit hash
+ * @param h3 4th 32 bits of 120-bit hash
+ * @param h4 5th 32 bits of 120-bit hash
+ * @return 0 on success else 1
+ */
 int sha1(char *input_file, uint32_t *h0, uint32_t *h1, uint32_t *h2,
 	 uint32_t *h3, uint32_t *h4)
 {
@@ -357,4 +386,15 @@ void clear_hash(uint32_t *h0, uint32_t *h1, uint32_t *h2, uint32_t *h3,
 	*h2 = 0x0;
 	*h3 = 0x0;
 	*h4 = 0x0;
+}
+
+/**
+ * @brief Performs a left rotation of an uint32_t
+ * @param val Value to be rotated.
+ * @param rotate_by Amount of rotation.
+ * @return returns left rotated value
+ */
+inline uint32_t left_rotate(uint32_t val, size_t rotate_by)
+{
+	return (val << rotate_by) | (val >> (32 - rotate_by));
 }
